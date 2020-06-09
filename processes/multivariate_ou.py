@@ -4,7 +4,7 @@ from scipy.linalg import sqrtm
 from .utils import get_dt
 
 
-class MultivariateOUProcess:
+class MultivariateOU:
     """
     Class implementing an Ornstein Uhlenbeck process
     
