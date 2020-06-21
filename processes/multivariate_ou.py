@@ -6,7 +6,7 @@ from .utils import get_dt
 
 class MultivariateOU:
     """
-    Class implementing an Ornstein Uhlenbeck process
+    Class implementing a Multivariate Ornstein Uhlenbeck process
     
     Parameters
     ----------
@@ -17,10 +17,10 @@ class MultivariateOU:
     tau : float
         Time scale of the OU process
     """
-    def __init__(self, mu=0, cov=1, tau=3):
+    def __init__(self, mu=0, cov=np.eye(2), tau=3):
         self.mu = mu
         self.cov = cov
-        self.sd = sqrtm(cov)
+        self.sd = np.real(sqrtm(cov))
         self.tau = tau
 
     def sample(self, t, shape=(1,), seed=None, exp=False):
@@ -42,14 +42,17 @@ class MultivariateOU:
         """
         np.random.seed(seed)
         
+        shape = (self.sd.shape[0], ) + shape
         dt = get_dt(t)
         
         eta = np.zeros((len(t),) + shape) * np.nan
         
-        eta[0] = self.mu + np.matmul(self.sd, np.random.randn(*shape))
+#         eta[0] = self.mu + np.matmul(self.sd, np.random.randn(*shape))
+        eta[0] = self.mu + np.einsum('ij,j...->i...', self.sd, np.random.randn(*shape))
 
         for j in range(len(t)-1):
             eta[j + 1] = eta[j] + (self.mu - eta[j]) / self.tau * dt + \
-                         np.sqrt(2 * dt / self.tau) * np.matmul(self.sd, np.random.randn(*shape))
+                         np.sqrt(2 * dt / self.tau) * np.einsum('ij,j...->i...', self.sd, np.random.randn(*shape))
+#                          np.sqrt(2 * dt / self.tau) * np.matmul(self.sd, np.random.randn(*shape))
             
         return eta
