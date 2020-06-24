@@ -3,20 +3,20 @@ from scipy.linalg import cholesky_banded, solveh_banded
 
 # from .utils import diag_indices, band_matrix, unband_matrix
 # from .utils import get_arg, get_dt
-from .utils import get_dt
+# from .utils import get_dt
 
 
-class AR1:
+class DichotomizedGaussian:
     """
-    Class implementing an AR(1) process
+    Class implementing 
     
     Parameters
     ----------
-    mu : float
-        Mean of the process
-    sd : float
-        Standard deviation of the noise
-    phi : float
+    mu : 
+        
+    sd : 
+        Standard  
+    phi : 
     """
     def __init__(self, mu=0, sd_noise=1, phi=0.9):
         self.mu = mu
