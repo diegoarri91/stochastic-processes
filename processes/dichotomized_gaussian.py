@@ -23,18 +23,19 @@ class DichotomizedGaussian:
         dt = get_dt(t)
 
         p = self.lam * dt
-        mu = np.sqrt(2) * erfinv(2 * p - 1)
+        cov0 = 1
+        mu = np.sqrt(2 * cov0) * erfinv(2 * p - 1)
         
         rho_gauss = np.arange(-1 + drho, 1, drho)
         rho_dg = []
         for _rho_gauss in rho_gauss:
-            cov_gauss = np.array([[1, _rho_gauss], [_rho_gauss, 1]])
+            cov_gauss = np.array([[cov0, cov0 * _rho_gauss], [cov0 * _rho_gauss, cov0]])
             rho_dg.append(1 + multivariate_normal.cdf([0, 0], mean=np.ones(2) * mu, cov=cov_gauss) - \
-                          2 * multivariate_normal.cdf([0], mean=np.ones(1) * mu, cov=np.array([1])))
+                          2 * multivariate_normal.cdf([0], mean=np.ones(1) * mu, cov=np.array([cov0])))
         rho_dg = np.array(rho_dg)
         
-        autocov = rho_gauss[np.argmin((self.raw_autocorrelation[1:, None] - rho_dg[None, :])**2, 1)]
-        autocov[0] = 1
+        autocov = cov0 * rho_gauss[np.argmin((self.raw_autocorrelation[:, None] - rho_dg[None, :])**2, 1)]
+        autocov[0] = cov0
         
         self.gp = GaussianProcess(mu=mu, autocov=autocov)
         self.gp.set_t(t, inv_cov=False, cholesky=True)

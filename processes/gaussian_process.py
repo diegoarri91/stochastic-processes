@@ -37,5 +37,7 @@ class GaussianProcess:
 
     def sample(self, t=None, shape=(1,), seed=None):
         np.random.seed(seed)
-        xi = self.ch_lower @ np.random.randn(self.ch_lower.shape[0], *shape) + self.mu
+#         xi = self.ch_lower @ np.random.randn(self.ch_lower.shape[0], *shape) + self.mu
+        rand = np.random.randn(self.ch_lower.shape[0], *shape)
+        xi = np.einsum('st,t...->s...', self.ch_lower, rand) + self.mu
         return xi
