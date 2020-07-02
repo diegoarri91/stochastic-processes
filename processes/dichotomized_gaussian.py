@@ -38,12 +38,16 @@ class DichotomizedGaussian:
         autocov[0] = cov0
         
         self.gp = GaussianProcess(mu=mu, autocov=autocov)
-        self.gp.set_t(t, inv_cov=False, cholesky=True)
+        
+        try:
+            self.gp.set_cholesky(t)
+        except(np.linalg.LinAlgError):
+            self.gp.set_cov(t)
         
         return self
     
-    def sample(self, t=None, shape=(1,), seed=None):
-        gp_samples = self.gp.sample(shape=shape, seed=seed)
+    def sample(self, t=None, shape=(1,), seed=None, cholesky=True):
+        gp_samples = self.gp.sample(shape=shape, seed=seed, cholesky=cholesky)
         mask_spikes = gp_samples > 0
         return mask_spikes
     
