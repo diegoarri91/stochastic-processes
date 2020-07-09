@@ -17,6 +17,9 @@ class DichotomizedGaussian:
     def __init__(self, lam=0, raw_autocorrelation=1):
         self.lam = lam
         self.raw_autocorrelation = raw_autocorrelation
+        
+        self.drho = None
+        self.max_error = None
 
     def set_t(self, t, drho=1e-3):
 #         self.t = t
@@ -34,7 +37,10 @@ class DichotomizedGaussian:
                           2 * multivariate_normal.cdf([0], mean=np.ones(1) * mu, cov=np.array([cov0])))
         rho_dg = np.array(rho_dg)
         
-        autocov = cov0 * rho_gauss[np.argmin((self.raw_autocorrelation[:, None] - rho_dg[None, :])**2, 1)]
+        self.drho = drho
+        idx = np.argmin((self.raw_autocorrelation[:, None] - rho_dg[None, :])**2, 1) 
+        self.max_error = np.max((self.raw_autocorrelation - rho_dg[idx])**2)
+        autocov = cov0 * rho_gauss[idx]
         autocov[0] = cov0
         
         self.gp = GaussianProcess(mu=mu, autocov=autocov)
