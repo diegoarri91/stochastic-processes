@@ -51,8 +51,12 @@ class MultivariateOU:
         eta[0] = self.mu + np.einsum('ij,j...->i...', self.sd, np.random.randn(*shape))
 
         for j in range(len(t)-1):
-            eta[j + 1] = eta[j] + (self.mu - eta[j]) / self.tau * dt + \
-                         np.sqrt(2 * dt / self.tau) * np.einsum('ij,j...->i...', self.sd, np.random.randn(*shape))
-#                          np.sqrt(2 * dt / self.tau) * np.matmul(self.sd, np.random.randn(*shape))
+            if not exp:
+                eta[j + 1] = eta[j] + (self.mu - eta[j]) / self.tau * dt + \
+                             np.sqrt(2 * dt / self.tau) * np.einsum('ij,j...->i...', self.sd, np.random.randn(*shape))
+#                              np.sqrt(2 * dt / self.tau) * np.matmul(self.sd, np.random.randn(*shape))
+            else:
+                eta[j + 1] = (eta[j] - self.mu) * np.exp(-dt / self.tau) + self.mu + \
+                             np.sqrt(1 - np.exp(-2 * dt / self.tau)) * np.einsum('ij,j...->i...', self.sd, np.random.randn(*shape))
             
         return eta
